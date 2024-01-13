@@ -1,0 +1,34 @@
+[
+    {
+        "name": "Home.vue",
+        "path": "@/views/Home.vue",
+        "icon": "",
+        "value": "0",
+        "type":"页面",
+        "label": "首页",
+        "router": "/",
+        "id": "0",
+        "pid": "0",
+        "childNode": null
+    },
+    {
+
+        "name": "",
+        "path": "",
+        "icon": "*",
+        "value": "1",
+        "label": "",
+        "router": "",
+        "id": "",
+        "pid": "",
+        "childNode": [
+            {
+                "path": "",
+                "value": "",
+                "label": "",
+                "id": "",
+                "childNode": null
+            }
+        ]
+    }
+]

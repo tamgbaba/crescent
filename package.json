@@ -1,0 +1,54 @@
+{
+  "name": "crescent",
+  "version": "0.0.0",
+  "private": true,
+  "main": "electron/main.js",
+  "scripts": {
+    "serve": "electron . NODE_ENV=development",
+    "build": "vite build",
+    "dev": "vite && NODE_ENV=development electron .",
+    "electron": " cross-env NODE_ENV=development electron .",
+    "electron:serve": "concurrently -k \"yarn dev\" \"yarn electron\"",
+    "electron:build": "vite build && electron-builder"
+  },
+  "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "axios": "^1.6.5",
+    "element-plus": "^2.4.3",
+    "fluent-ffmpeg": "^2.1.2",
+    "http-shutdown": "^1.2.2",
+    "vue": "^3.3.8",
+    "vue-axios": "^3.5.2",
+    "vue-router": "^4.0.13"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^4.5.0",
+    "cross-env": "^7.0.3",
+    "electron": "^13.0.0",
+    "electron-builder": "^24.9.1",
+    "vite": "^5.0.0"
+  },
+  "build": {
+    "appId": "jinmingyue",
+    "productName": "Crescent",
+    "copyright": "Copyright © 2021 <your-name>",
+    "mac": {
+      "category": "public.app-category.utilities"
+    },
+    "win":{
+      "icon":"@/assets/crescent.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets",
+      "output": "dist_electron"
+    }
+  }
+}
