@@ -9,16 +9,18 @@
     <el-switch v-model="isTranscribe" @click="transcribe(isTranscribe)" />
     <br>
     <button @click="streamScreen.stop()">停止录制</button>
+    <span @click="openFile">
+      <el-input v-model="selectPath" disabled placeholder="Please input" />
+    </span>
   </div>
 </template>
   
 <script >
 import { reactive, ref } from "vue";
-
 const fs = require('fs');
-
 const path = require('path');
-const { ipcRenderer, desktopCapturer } = require("electron");
+const { dialog, desktopCapturer, ipcRenderer } = require("electron");
+
 export default {
   name: "control",
   setup() {
@@ -27,8 +29,8 @@ export default {
     const screenVdeo = ref(null);
     const isTranscribe = ref(false)
     const streamScreen = ref(null);
-    const recorder = ref(null);
     const chunks = [];
+    const selectPath = ref('C:\\Users\\Default\\Videos');
 
     //当tab切换时
     const winChange = async (sourceId) => {
@@ -58,34 +60,46 @@ export default {
         blob.arrayBuffer().then((arrayBuffer) => {
           const buffer = Buffer.from(arrayBuffer);
           // 生成一个唯一的文件名，这里使用当前时间戳
-          const fileName = `video_${Date.now()}.mp4`;
-          const filePath = path.join('D:\\dev\\crescent\\', fileName);
+          const date = new Date();
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份从 0 开始，需要加 1
+          const day = String(date.getDate()).padStart(2, '0');
+          const hours = String(date.getHours()).padStart(2, '0');
+          const minutes = String(date.getMinutes()).padStart(2, '0');
+          const seconds = String(date.getSeconds()).padStart(2, '0');
+          const formattedDate = `${year}-${month}-${day}-${hours}-${minutes}-${seconds}`;
+          const fileName = `明月录屏-${formattedDate}.mp4`
+          const filePath = path.join(selectPath.value, fileName); s
           const fileStream = fs.createWriteStream(filePath);
           fileStream.write(buffer);
           fileStream.end();
         })
+
         //保存成功后消息提醒
-        new Notification({ title: '视频已生成', body: '欢迎使用' });
+        isTranscribe.value = false
       })
 
       //暂停录制
       streamScreen.value.addEventListener('pause', () => {
         console.log('pause')
+        isTranscribe.value = false
       })
 
       //恢复录制
       streamScreen.value.addEventListener('resume', () => {
         console.log('resume')
+        isTranscribe.value = true
       })
 
       //录制错误
       streamScreen.value.addEventListener('error', (err) => {
         console.log('error')
+        isTranscribe.value = false
       })
 
       //开始录制
       streamScreen.value.addEventListener('start', () => {
-        console.log('start')
+        isTranscribe.value = true
       })
 
       //开始录制
@@ -135,14 +149,12 @@ export default {
         streamScreen.value.pause()
       }
     };
-    // const getVideoDom = (el, id) => {
-    //   screenVdeo.value.push({
-    //     id: id,
-    //     el: el,
-    //   });
-    // };
 
-    //获取电脑屏幕
+    //打开本地文件选择文件路径
+    const openFile = async () => {
+
+    }
+
     return {
       getMediaDevices,
       getWindowScreen,
@@ -153,7 +165,8 @@ export default {
       isTranscribe,
       streamScreen,
       transcribe,
-      recorder
+      selectPath,
+      openFile
     };
   },
   mounted() {
