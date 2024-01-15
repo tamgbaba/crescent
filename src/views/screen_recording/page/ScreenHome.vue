@@ -7,12 +7,18 @@
     </el-select>
     <video controls preload="auto" ref="screenVdeo"></video>
     <el-switch v-model="isTranscribe" @click="transcribe(isTranscribe)" />
+    <br>
+    <button @click="streamScreen.stop()">停止录制</button>
   </div>
 </template>
   
 <script >
 import { reactive, ref } from "vue";
-const { ipcRenderer, Notification, desktopCapturer } = require("electron");
+
+const fs = require('fs');
+
+const path = require('path');
+const { ipcRenderer, desktopCapturer } = require("electron");
 export default {
   name: "control",
   setup() {
@@ -21,7 +27,8 @@ export default {
     const screenVdeo = ref(null);
     const isTranscribe = ref(false)
     const streamScreen = ref(null);
-
+    const recorder = ref(null);
+    const chunks = [];
 
     //当tab切换时
     const winChange = async (sourceId) => {
@@ -42,9 +49,23 @@ export default {
       streamScreen.value = new MediaRecorder(stream)
       video.onloadedmetadata = (e) => video.play();
 
+      streamScreen.value.addEventListener("dataavailable", function (e) {
+        chunks.push(e.data);
+      });
       //停止录制
       streamScreen.value.addEventListener('stop', () => {
-        console.log('stop')
+        const blob = new Blob(chunks, { type: 'video/map4' });
+        blob.arrayBuffer().then((arrayBuffer) => {
+          const buffer = Buffer.from(arrayBuffer);
+          // 生成一个唯一的文件名，这里使用当前时间戳
+          const fileName = `video_${Date.now()}.mp4`;
+          const filePath = path.join('D:\\dev\\crescent\\', fileName);
+          const fileStream = fs.createWriteStream(filePath);
+          fileStream.write(buffer);
+          fileStream.end();
+        })
+        //保存成功后消息提醒
+        new Notification({ title: '视频已生成', body: '欢迎使用' });
       })
 
       //暂停录制
@@ -62,7 +83,7 @@ export default {
         console.log('error')
       })
 
-      //录制错误
+      //开始录制
       streamScreen.value.addEventListener('start', () => {
         console.log('start')
       })
@@ -70,9 +91,6 @@ export default {
       //开始录制
       streamScreen.value.start()
     };
-    const blobToFileSave = (blobData, { type }) => {
-
-    }
 
     //获取电脑屏幕窗口信息
     const getWindowScreen = async () => {
@@ -102,18 +120,15 @@ export default {
 
     //获取摄像头组
     const getMediaDevices = () => {
+      huifu
       navigator.mediaDevices
         .enumerateDevices()
         .then((devices) => devices.filter((d) => d.kind === "videoinput"))
         .then((devices) => console.log(devices)); // devices 为摄像头数组);
     };
 
-    // 是否打开录制，true开启，false关闭
-
-
+    // 恢复和暂停录制
     const transcribe = (is) => {
-
-      console.log(streamScreen)
       if (!is) {
         streamScreen.value.resume()
       } {
@@ -137,7 +152,8 @@ export default {
       screenVdeo,
       isTranscribe,
       streamScreen,
-      transcribe
+      transcribe,
+      recorder
     };
   },
   mounted() {
