@@ -9,7 +9,8 @@
     "dev": "vite && NODE_ENV=development electron .",
     "electron": " cross-env NODE_ENV=development electron .",
     "electron:serve": "concurrently -k \"yarn dev\" \"yarn electron\"",
-    "electron:build": "vite build && electron-builder"
+    "electron:build": "vite build && electron-builder",
+    "t": "electron-builder"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
